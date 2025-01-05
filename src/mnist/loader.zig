@@ -1,10 +1,7 @@
 const std = @import("std");
 
 pub const Image = struct {
-    /// The data of the image itself. Images are 28x28, each element
-    /// being a value between 0-255.
     pixels: [784]u8,
-    /// The label associated with the image for verification
     label: u8,
 };
 
