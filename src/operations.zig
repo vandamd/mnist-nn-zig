@@ -1,7 +1,5 @@
 const std = @import("std");
 const Matrix = @import("matrix.zig").Matrix;
-const MatrixError = @import("matrix.zig").MatrixError;
-const testing = std.testing;
 
 pub const MatrixOpError = error{
     DimensionMismatch,
@@ -22,7 +20,7 @@ pub fn add(allocator: std.mem.Allocator, a: Matrix, b: Matrix) MatrixOpError!Mat
     return result;
 }
 
-pub fn multiply(allocator: std.mem.Allocator, a: Matrix, b: Matrix) (MatrixOpError || MatrixError)!Matrix {
+pub fn multiply(allocator: std.mem.Allocator, a: Matrix, b: Matrix) (MatrixOpError || Matrix.Error)!Matrix {
     if (a.columns != b.rows) {
         return MatrixOpError.DimensionMismatch;
     }
@@ -61,7 +59,7 @@ pub fn transpose(allocator: std.mem.Allocator, m: Matrix) MatrixOpError!Matrix {
 }
 
 test "matrix addition" {
-    const allocator = testing.allocator;
+    const allocator = std.testing.allocator;
 
     var matrix1 = try Matrix.init(allocator, 2, 2);
     defer matrix1.deinit(allocator);
@@ -77,22 +75,22 @@ test "matrix addition" {
     var matrix3 = try add(allocator, matrix1, matrix2);
     defer matrix3.deinit(allocator);
 
-    try testing.expectEqualSlices(f64, &expectedData, matrix3.data);
+    try std.testing.expectEqualSlices(f64, &expectedData, matrix3.data);
 }
 
 test "matrix addition dimension checker" {
-    const allocator = testing.allocator;
+    const allocator = std.testing.allocator;
 
     var matrix1 = try Matrix.init(allocator, 2, 2);
     defer matrix1.deinit(allocator);
     var matrix2 = try Matrix.init(allocator, 4, 2);
     defer matrix2.deinit(allocator);
 
-    try testing.expectError(MatrixOpError.DimensionMismatch, add(allocator, matrix1, matrix2));
+    try std.testing.expectError(MatrixOpError.DimensionMismatch, add(allocator, matrix1, matrix2));
 }
 
 test "matrix multiplication" {
-    const allocator = testing.allocator;
+    const allocator = std.testing.allocator;
 
     var matrix1 = try Matrix.init(allocator, 2, 2);
     defer matrix1.deinit(allocator);
@@ -110,24 +108,24 @@ test "matrix multiplication" {
     var matrix3 = try multiply(allocator, matrix1, matrix2);
     defer matrix3.deinit(allocator);
 
-    try testing.expectEqual(@as(usize, 2), matrix3.rows);
-    try testing.expectEqual(@as(usize, 1), matrix3.columns);
-    try testing.expectEqualSlices(f64, &expectedData, matrix3.data);
+    try std.testing.expectEqual(@as(usize, 2), matrix3.rows);
+    try std.testing.expectEqual(@as(usize, 1), matrix3.columns);
+    try std.testing.expectEqualSlices(f64, &expectedData, matrix3.data);
 }
 
 test "matrix multiplication dimension checker" {
-    const allocator = testing.allocator;
+    const allocator = std.testing.allocator;
 
     var matrix1 = try Matrix.init(allocator, 2, 1);
     defer matrix1.deinit(allocator);
     var matrix2 = try Matrix.init(allocator, 2, 2);
     defer matrix2.deinit(allocator);
 
-    try testing.expectError(MatrixOpError.DimensionMismatch, multiply(allocator, matrix1, matrix2));
+    try std.testing.expectError(MatrixOpError.DimensionMismatch, multiply(allocator, matrix1, matrix2));
 }
 
 test "matrix transpose" {
-    const allocator = testing.allocator;
+    const allocator = std.testing.allocator;
 
     var matrix = try Matrix.init(allocator, 2, 3);
     defer matrix.deinit(allocator);
@@ -140,7 +138,7 @@ test "matrix transpose" {
     var transposed = try transpose(allocator, matrix);
     defer transposed.deinit(allocator);
 
-    try testing.expectEqual(@as(usize, 3), transposed.rows);
-    try testing.expectEqual(@as(usize, 2), transposed.columns);
-    try testing.expectEqualSlices(f64, &expectedData, transposed.data);
+    try std.testing.expectEqual(@as(usize, 3), transposed.rows);
+    try std.testing.expectEqual(@as(usize, 2), transposed.columns);
+    try std.testing.expectEqualSlices(f64, &expectedData, transposed.data);
 }

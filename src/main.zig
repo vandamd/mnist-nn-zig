@@ -1,6 +1,6 @@
 const std = @import("std");
-const vis = @import("mnist/visualiser.zig");
-const loader = @import("mnist/loader.zig");
+const vis = @import("visualiser.zig");
+const loader = @import("loader.zig");
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
