@@ -1,5 +1,7 @@
 const std = @import("std");
 
+pub const ActivationFn = *const fn (f64) f64;
+
 pub fn relu(x: f64) f64 {
     return @max(0, x);
 }

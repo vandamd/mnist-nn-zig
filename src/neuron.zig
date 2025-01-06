@@ -4,15 +4,13 @@ const Matrix = @import("matrix.zig").Matrix;
 const operations = @import("operations.zig");
 const activation = @import("activation.zig");
 
-const ActivationFn = *const fn (f64) f64;
-
 pub const Neuron = struct {
     weights: Matrix,
     bias: f64,
-    activation: ActivationFn,
+    activationFunction: activation.ActivationFn,
     prng: std.rand.DefaultPrng,
 
-    pub fn init(allocator: std.mem.Allocator, numInputs: usize, activationFunction: ActivationFn) !Neuron {
+    pub fn init(allocator: std.mem.Allocator, numInputs: usize, activationFunction: activation.ActivationFn) !Neuron {
         const weights = try Matrix.init(allocator, 1, numInputs);
 
         var prng = std.rand.DefaultPrng.init(@as(u64, @intCast(std.time.timestamp())));
@@ -26,7 +24,7 @@ pub const Neuron = struct {
         return Neuron{
             .weights = weights,
             .bias = bias,
-            .activation = activationFunction,
+            .activationFunction = activationFunction,
             .prng = prng,
         };
     }
@@ -43,12 +41,12 @@ pub const Neuron = struct {
         defer mult.deinit(allocator);
 
         const sum: f64 = try mult.get(0, 0);
-        const value = self.activation(sum + self.bias);
+        const value = self.activationFunction(sum + self.bias);
         return value;
     }
 };
 
-test "neuron initialisation" {
+test "neuron init and deinit" {
     const allocator = std.testing.allocator;
 
     var neuron = try Neuron.init(allocator, 3, activation.relu);

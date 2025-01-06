@@ -41,7 +41,7 @@ pub const Matrix = struct {
     }
 };
 
-test "matrix creation" {
+test "matrix init and deinit" {
     const allocator = std.testing.allocator;
 
     var matrix = try Matrix.init(allocator, 3, 5);
