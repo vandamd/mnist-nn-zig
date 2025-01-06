@@ -64,16 +64,19 @@ test "neuron init and deinit" {
 test "neuron forward" {
     const allocator = std.testing.allocator;
 
-    var neuron = try Neuron.init(allocator, 1, activation.relu);
+    var neuron = try Neuron.init(allocator, 3, activation.relu);
     defer neuron.deinit(allocator);
 
-    var input = try Matrix.init(allocator, 1, 1);
+    var input = try Matrix.init(allocator, 1, 3);
     defer input.deinit(allocator);
-    try input.set(0, 0, 2.0);
 
-    neuron.weights.data[0] = 0.5;
+    for (0..3) |i| {
+        try neuron.weights.set(0, i, 0.5);
+        try input.set(0, i, 2.0);
+    }
+
     neuron.bias = 1.0;
 
     const result = try neuron.forward(allocator, input);
-    try std.testing.expectApproxEqAbs(result, 2.0, 0.001);
+    try std.testing.expectApproxEqAbs(result, 4.0, 0.001);
 }

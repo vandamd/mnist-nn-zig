@@ -34,10 +34,10 @@ pub const Layer = struct {
     }
 
     pub fn forward(self: *const Layer, allocator: std.mem.Allocator, inputs: Matrix) !Matrix {
-        var outputs = try Matrix.init(allocator, self.numNeurons, 1);
+        var outputs = try Matrix.init(allocator, 1, self.numNeurons);
 
         for (0..self.numNeurons) |i| {
-            try outputs.set(i, 0, try self.neurons[i].forward(allocator, inputs));
+            try outputs.set(0, i, try self.neurons[i].forward(allocator, inputs));
         }
 
         return outputs;
@@ -69,22 +69,27 @@ test "neuron layer init and deinit" {
 test "layer forward" {
     const allocator = std.testing.allocator;
 
-    var layer = try Layer.init(allocator, 2, 1, activation.relu);
+    var layer = try Layer.init(allocator, 2, 3, activation.relu);
     defer layer.deinit(allocator);
 
-    for (0..layer.numNeurons) |i| {
-        layer.neurons[i].weights.data[0] = 2.0;
-        layer.neurons[i].bias = 0.5;
-    }
-
-    var input = try Matrix.init(allocator, 1, 1);
+    var input = try Matrix.init(allocator, 1, 3);
     defer input.deinit(allocator);
-    try input.set(0, 0, 2.0);
+
+    for (0..layer.numNeurons) |i| {
+        for (0..layer.numInputs) |j| {
+            try input.set(0, j, 2.0);
+            layer.neurons[i].weights.data[j] = 2.0;
+        }
+        layer.neurons[i].bias = 1;
+    }
 
     var results = try layer.forward(allocator, input);
     defer results.deinit(allocator);
 
-    for (0..results.rows) |i| {
-        try std.testing.expectApproxEqAbs(try results.get(i, 0), 4.5, 0.001);
+    for (0..results.columns) |i| {
+        try std.testing.expectApproxEqAbs(try results.get(0, i), 13, 0.001);
     }
+
+    try std.testing.expectEqual(@as(usize, 1), results.rows);
+    try std.testing.expectEqual(@as(usize, 2), results.columns);
 }
