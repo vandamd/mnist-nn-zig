@@ -39,6 +39,12 @@ pub const Matrix = struct {
 
         self.data[(row * self.columns) + column] = value;
     }
+
+    pub fn copy(self: *const Matrix, allocator: std.mem.Allocator) !Matrix {
+        const result = try Matrix.init(allocator, self.rows, self.columns);
+        @memcpy(result.data, self.data);
+        return result;
+    }
 };
 
 test "matrix init and deinit" {

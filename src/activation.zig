@@ -3,6 +3,25 @@ const Matrix = @import("matrix.zig").Matrix;
 
 pub const ActivationFn = *const fn (f64) f64;
 
+pub const ActivationType = enum {
+    Relu,
+    Sigmoid,
+};
+
+pub fn getActivationFn(activation_type: ActivationType) ActivationFn {
+    return switch (activation_type) {
+        .Relu => relu,
+        .Sigmoid => sigmoid,
+    };
+}
+
+pub fn getActivationDerivFn(activation_type: ActivationType) ActivationFn {
+    return switch (activation_type) {
+        .Relu => reluDerivative,
+        .Sigmoid => sigmoidDerivative,
+    };
+}
+
 pub fn relu(x: f64) f64 {
     return @max(0, x);
 }

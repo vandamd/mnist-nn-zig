@@ -20,6 +20,20 @@ pub fn add(allocator: std.mem.Allocator, a: Matrix, b: Matrix) MatrixOpError!Mat
     return result;
 }
 
+pub fn subtract(allocator: std.mem.Allocator, a: Matrix, b: Matrix) MatrixOpError!Matrix {
+    if (a.rows != b.rows or a.columns != b.columns) {
+        return MatrixOpError.DimensionMismatch;
+    }
+
+    var result = try Matrix.init(allocator, a.rows, a.columns);
+
+    for (0..a.rows * a.columns) |i| {
+        result.data[i] = a.data[i] - b.data[i];
+    }
+
+    return result;
+}
+
 pub fn multiply(allocator: std.mem.Allocator, a: Matrix, b: Matrix) (MatrixOpError || Matrix.Error)!Matrix {
     if (a.columns != b.rows) {
         return MatrixOpError.DimensionMismatch;
@@ -87,6 +101,23 @@ test "matrix addition dimension checker" {
     defer matrix2.deinit(allocator);
 
     try std.testing.expectError(MatrixOpError.DimensionMismatch, add(allocator, matrix1, matrix2));
+}
+
+test "matrix subtraction" {
+    const allocator = std.testing.allocator;
+
+    var matrix1 = try Matrix.init(allocator, 2, 2);
+    defer matrix1.deinit(allocator);
+    var matrix2 = try Matrix.init(allocator, 2, 2);
+    defer matrix2.deinit(allocator);
+
+    try matrix1.set(0, 0, 3.0);
+    try matrix2.set(0, 0, 1.0);
+
+    var result = try subtract(allocator, matrix1, matrix2);
+    defer result.deinit(allocator);
+
+    try std.testing.expectApproxEqAbs(try result.get(0, 0), 2.0, 0.001);
 }
 
 test "matrix multiplication" {
